@@ -1,0 +1,7 @@
+http:
+  http://nginx/syncthing/:
+    status: 200
+    allow-insecure: false
+    timeout: 5000
+    body:
+      - /title.*thisDevice.*Syncthing/

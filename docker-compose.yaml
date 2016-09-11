@@ -1,0 +1,44 @@
+version: '2'
+services:
+  syncthing:
+    image: timcinel:syncthing
+    build: .
+    environment:
+      - DOCKER_USER=syncthing
+      - DOCKER_USER_ID=712
+      - DOCKER_GROUP=docker-nginx
+      - DOCKER_GROUP_ID=800
+    volumes:
+      - "./example/mounts/data:/data"
+      - "./example/mounts/config:/home/syncthing/.config"
+  syncthing-nginx-data:
+    image: alpine
+    volumes:
+      - "./example/nginx-vhost.conf:/etc/nginx/conf.d/nginx-vhost.conf"
+      - "./example/nginx-location.conf:/etc/nginx/locations.d/nginx-syncthing/location.conf"
+    command: /bin/true
+    ports:
+      # - 22000:22000
+      - 21027:21027
+  nginx:
+    image: timcinel:pluggable-nginx
+    build: ./example/docker-pluggable-nginx/
+    depends_on:
+      - syncthing
+    volumes_from:
+      - syncthing
+      - syncthing-nginx-data
+    environment:
+      - DOCKER_USER=docker-nginx
+      - DOCKER_USER_ID=800
+      - DOCKER_GROUP=docker-nginx
+      - DOCKER_GROUP_ID=800
+    ports:
+      - 80:80
+  validate:
+    image: aelsabbahy/goss
+    depends_on:
+      - nginx
+    volumes:
+      - ./example/goss.yaml:/goss.yaml
+    command: goss validate --sleep 5s --retry-timeout 30s /goss.yaml
