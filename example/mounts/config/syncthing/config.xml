@@ -1,0 +1,6 @@
+<configuration version="16">
+    <gui enabled="true" tls="false" debugging="false">
+        <address>0.0.0.0:8384</address>
+        <theme>default</theme>
+    </gui>
+</configuration>
